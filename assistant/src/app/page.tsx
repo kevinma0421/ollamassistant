@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 export default function Home() {
 	const [input, setInput] = useState('');
@@ -27,11 +28,12 @@ export default function Home() {
 				{ message: input },
 				{ withCredentials: true }
 			);
-			//might move to backend
-			const cleanedResponse = res.data.response.replace(
-				/<\/?think>/g,
-				''
-			);
+
+			// ✅ Preserve markdown formatting, replace <br> with newlines
+			console.log(res.data.response);
+			const cleanedResponse = res.data.response
+				.replace(/<\/?think>/g, '')
+				.replace(/<br>/g, '\n');
 
 			// Add AI response to aiResponses
 			setAiResponses((prev) => [...prev, cleanedResponse]);
@@ -63,9 +65,15 @@ export default function Home() {
 						</div>
 
 						{/* AI response */}
-						{aiResponses[index] && (
-							<div className='px-4 py-2 mt-2  text-gray-200 '>
-								AI: {aiResponses[index]}
+						{aiResponses[index] ? (
+							<div className='px-4 py-2 mt-2 text-gray-200 bg-neutral-800 p-4 rounded-lg prose max-w-full'>
+								<ReactMarkdown>
+									{aiResponses[index]}
+								</ReactMarkdown>
+							</div>
+						) : (
+							<div className='px-4 py-2 mt-2 text-gray-200'>
+								Thinking...
 							</div>
 						)}
 					</div>
