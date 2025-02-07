@@ -66,7 +66,7 @@ export default function Home() {
 
 						{/* AI response */}
 						{aiResponses[index] ? (
-							<div className='px-4 py-2 mt-2 text-gray-200 bg-neutral-800 p-4 rounded-lg prose max-w-full'>
+							<div className='px-4 py-2 mt-2 text-gray-200 bg-neutral-700 p-4 rounded-lg prose max-w-full'>
 								<ReactMarkdown>
 									{aiResponses[index]}
 								</ReactMarkdown>

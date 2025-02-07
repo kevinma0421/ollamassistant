@@ -1,15 +1,16 @@
+const robot = require('@hurdlegroup/robotjs');
 const path = require('path');
+const { app, BrowserWindow, clipboard, globalShortcut } = require('electron');
 
 // Ensure the correct path to the Electron binary
-console.log(
+/*console.log(
 	'Electron binary path:',
 	path.join(__dirname, 'node_modules', '.bin', 'electron.cmd')
-);
+);*/
 
 require('electron-reload')(__dirname, {
-	electron: require(`${__dirname}/node_modules/electron`),
+	electron: path.join(__dirname, 'node_modules', 'electron'),
 });
-const { app, BrowserWindow, clipboard, globalShortcut } = require('electron');
 
 let win;
 
@@ -17,11 +18,11 @@ app.whenReady().then(() => {
 	win = new BrowserWindow({
 		width: 600,
 		height: 800,
-		alwaysOnTop: false, // Floating window
-		frame: true, // Keep a simple UI
+		alwaysOnTop: false,
+		frame: true,
 		webPreferences: {
 			nodeIntegration: true,
-			preload: './preload.js', // Load the preload script
+			preload: path.join(__dirname, 'preload.js'), // Load the preload script
 			contextIsolation: true,
 		},
 	});
@@ -36,10 +37,17 @@ app.whenReady().then(() => {
 	});
 	//win.setMenu(null);
 
-	// Global shortcut to paste selected text into the chat
-	globalShortcut.register('CommandOrControl+Shift+V', () => {
-		let text = clipboard.readText(); // Read copied text
-		win.webContents.send('pasteText', text); // Send it to the chat UI
+	// shortcut to copy paste
+	globalShortcut.register('F2', () => {
+		//console.log(globalShortcut.isRegistered('F2'));
+
+		robot.keyTap('c', 'control');
+		let text = clipboard.readText();
+		let trimmed = text.trimStart();
+		win.webContents.send('pasteText', trimmed);
+		if (win.isMinimized()) {
+			win.restore();
+		}
 	});
 });
 
