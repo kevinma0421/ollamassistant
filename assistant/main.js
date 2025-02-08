@@ -48,9 +48,13 @@ app.whenReady().then(() => {
 		win.webContents.send('pasteText', trimmed);
 		win.focus();
 		win.webContents.executeJavaScript(`
-            let inputBox = document.querySelector('textarea');
+            var inputBox = document.querySelector('textarea');
             if (inputBox) {
                 inputBox.focus();
+                setTimeout(() => {
+                    inputBox.selectionStart = inputBox.selectionEnd = inputBox.value.length;
+                    inputBox.scrollTop = inputBox.scrollHeight;
+                }, 50);
             }
         `);
 	});
