@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 
@@ -10,9 +10,12 @@ export default function Home() {
 
 	// Handle pasted text from Electron
 	useEffect(() => {
-		window.electron?.on('pasteText', (event, text) => {
-			setInput(text);
-		});
+		window.electron?.on(
+			'pasteText',
+			(event: any, text: SetStateAction<string>) => {
+				setInput(text);
+			}
+		);
 	}, []);
 
 	const handleQuery = async () => {

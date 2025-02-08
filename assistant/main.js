@@ -27,31 +27,28 @@ app.whenReady().then(() => {
 		},
 		transparent: false,
 		hasShadow: false,
+		parent: null,
 	});
 
 	win.loadURL('http://localhost:3000'); // Loads Next.js frontend
 
-	win.on('blur', () => {
+	/*win.on('blur', () => {
 		if (!win.isFocused()) {
 			//console.log('poor');
 			win.minimize();
 		}
-	});
+	});*/
 	//win.setMenu(null);
 
 	// shortcut to copy paste
 	globalShortcut.register('F2', () => {
-		//console.log(globalShortcut.isRegistered('F2'));
-
 		robot.keyTap('c', 'control');
 		let text = clipboard.readText();
 		let trimmed = text.trimStart();
 		win.webContents.send('pasteText', trimmed);
-		if (win.isMinimized()) {
-			win.restore();
-		}
+		win.focus();
 		win.webContents.executeJavaScript(`
-            const inputBox = document.querySelector('input');
+            let inputBox = document.querySelector('textarea');
             if (inputBox) {
                 inputBox.focus();
             }
