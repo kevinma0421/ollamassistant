@@ -51,7 +51,7 @@ export default function Home() {
 	};
 
 	return (
-		<div className='flex flex-col h-screen items-center p-4 bg-zinc-800 justify-between'>
+		<div className='flex flex-col h-screen items-center p-4 bg-zinc-800 relative'>
 			<h1 className='text-2xl font-bold text-gray-200'>LLM Assistant</h1>
 			<div className='flex-grow overflow-y-auto my-10 w-full px-20 space-y-4'>
 				{/* Render messages */}
@@ -60,13 +60,13 @@ export default function Home() {
 						key={`user-${index}`}
 						className='flex flex-col'>
 						{/* User message */}
-						<div className='px-4 py-2 rounded-full bg-neutral-700 text-white w-fit self-end'>
+						<div className='px-4 py-2 rounded-3xl bg-neutral-700 text-white w-fit max-w-4/6 self-end'>
 							{message}
 						</div>
 
 						{/* AI response */}
 						{aiResponses[index] ? (
-							<div className='px-4 py-2 mt-2 text-gray-200 bg-neutral-700 p-4 rounded-lg prose max-w-full'>
+							<div className='px-4 py-2 mt-2 text-gray-200 p-4 rounded-lg prose max-w-full'>
 								<ReactMarkdown>
 									{aiResponses[index]}
 								</ReactMarkdown>
@@ -79,11 +79,13 @@ export default function Home() {
 					</div>
 				))}
 			</div>
-			<input
-				className='w-full max-w-[calc(100%-10rem)] h-10 p-2 text-gray-200 select-none outline-none bg-neutral-700 rounded-xl placeholder-gray-400'
+
+			{/* Position the textarea at the bottom */}
+			<textarea
+				className='absolute bottom-6 w-full max-w-[calc(100%-10rem)] max-h-40 overflow-y-auto p-2 text-gray-200 outline-none bg-neutral-700 rounded-xl placeholder-gray-400 resize-none'
 				value={input}
 				onChange={(e) => setInput(e.target.value)}
-				onKeyDown={handleKeyDown} // Listen for Enter key
+				onKeyDown={handleKeyDown}
 				placeholder='Type and press Enter...'
 			/>
 		</div>

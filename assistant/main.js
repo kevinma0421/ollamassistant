@@ -2,14 +2,14 @@ const robot = require('@hurdlegroup/robotjs');
 const path = require('path');
 const { app, BrowserWindow, clipboard, globalShortcut } = require('electron');
 
-// Ensure the correct path to the Electron binary
-/*console.log(
-	'Electron binary path:',
-	path.join(__dirname, 'node_modules', '.bin', 'electron.cmd')
-);*/
-
 require('electron-reload')(__dirname, {
-	electron: path.join(__dirname, 'node_modules', 'electron'),
+	electron: path.join(
+		__dirname,
+		'node_modules',
+		'electron',
+		'dist',
+		'electron.exe'
+	),
 });
 
 let win;
@@ -25,6 +25,8 @@ app.whenReady().then(() => {
 			preload: path.join(__dirname, 'preload.js'), // Load the preload script
 			contextIsolation: true,
 		},
+		transparent: false,
+		hasShadow: false,
 	});
 
 	win.loadURL('http://localhost:3000'); // Loads Next.js frontend
@@ -48,6 +50,12 @@ app.whenReady().then(() => {
 		if (win.isMinimized()) {
 			win.restore();
 		}
+		win.webContents.executeJavaScript(`
+            const inputBox = document.querySelector('input');
+            if (inputBox) {
+                inputBox.focus();
+            }
+        `);
 	});
 });
 
