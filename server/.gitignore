@@ -3,3 +3,6 @@ venv/
 
 # Ignore Python bytecode cache
 __pycache__/
+
+#Ignore .env
+.env
