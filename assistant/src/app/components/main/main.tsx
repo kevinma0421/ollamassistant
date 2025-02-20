@@ -2,6 +2,7 @@
 import { useState, useEffect, SetStateAction } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import MarkdownComponent from '../../../MarkdownComponent';
 
 export default function Main() {
 	const [input, setInput] = useState('');
@@ -160,8 +161,8 @@ export default function Main() {
 								{/* Think Toggle Box */}
 								<div
 									key={index}
-									className='bg-neutral-700 text-gray-200
-									px-4 py-2 cursor-pointer text-sm w-fit rounded-lg'
+									className='bg-neutral-700 text-gray-400
+									px-4 py-2 cursor-pointer text-xs w-fit rounded-lg'
 									onClick={() =>
 										toggleThinkVisibility(index)
 									}>
@@ -170,19 +171,29 @@ export default function Main() {
 										: 'Show Thinking'}
 								</div>
 
-								{/* show thinking */}
+								{/* Show Thinking Process (Toggleable, Scrollable) */}
 								{expandedIndexes.has(index) && (
-									<div className='my-4 text-gray-200 bg-neutral-700 rounded-lg'>
-										<ReactMarkdown className='whitespace-pre-wrap mx-3 text-sm my-5 py-5'>
-											{aiThink[index]}
-										</ReactMarkdown>
+									<div className='my-4 bg-neutral-700 text-gray-200 rounded-lg p-3'>
+										<div className='text-xs font-bold text-gray-400'>
+											Thinking Process:
+										</div>
+										<div className='max-h-40 overflow-y-auto bg-neutral-700 rounded-md p-2'>
+											<MarkdownComponent
+												content={aiThink[index]}
+											/>
+										</div>
 									</div>
 								)}
 
-								{/* final ans */}
-								<ReactMarkdown className='whitespace-pre-wrap mt-2'>
-									{aiResponses[index]}
-								</ReactMarkdown>
+								{/* Final Answer (Always Visible) */}
+								<div className='mt p-4 rounded-lg text-gray-200'>
+									<div className='text-xs font-bold text-gray-400 mb-4'>
+										Final Answer:
+									</div>
+									<MarkdownComponent
+										content={aiResponses[index]}
+									/>
+								</div>
 							</div>
 						) : (
 							<div className='px-4 py-2 mt-2 text-gray-200'>
