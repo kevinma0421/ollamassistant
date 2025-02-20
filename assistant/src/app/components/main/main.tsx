@@ -3,11 +3,15 @@ import { useState, useEffect, SetStateAction } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 
-export default function main() {
+export default function Main() {
 	const [input, setInput] = useState('');
 	const [userMessages, setUserMessages] = useState<string[]>([]);
 	const [aiResponses, setAiResponses] = useState<string[]>([]);
+	const [aiThink, setAiThink] = useState<string[]>([]);
 	const [sessionId, setSessionId] = useState<string | null>(null);
+	const [expandedIndexes, setExpandedIndexes] = useState<Set<number>>(
+		new Set()
+	);
 
 	// fetch session ID or create new one if DNE
 	useEffect(() => {
@@ -54,13 +58,20 @@ export default function main() {
 
 			const userMessages: string[] = [];
 			const aiResponses: string[] = [];
+			const aiThink: string[] = [];
 
-			messages.forEach((msg: { user: string; ai: string }) => {
-				userMessages.push(msg.user);
-				aiResponses.push(msg.ai);
+			messages.forEach((msg: { type: string; content: string }) => {
+				if (msg.type === 'human') {
+					userMessages.push(msg.content);
+				} else if (msg.type === 'ai') {
+					const { think, final } = parseAiResponse(msg.content);
+					aiThink.push(think);
+					aiResponses.push(final);
+				}
 			});
 
 			setUserMessages(userMessages);
+			setAiThink(aiThink);
 			setAiResponses(aiResponses);
 		} catch (err) {
 			console.error('Failed to load chat history:', err);
@@ -80,11 +91,11 @@ export default function main() {
 				user_message: userInput,
 			});
 
-			const aiResponse = res.data.response
-				.replace(/<\/?think>/g, '')
-				.replace(/<br>/g, '\n');
+			const aiResponse = res.data.response;
+			const { think, final } = parseAiResponse(aiResponse);
 
-			setAiResponses((prev) => [...prev, aiResponse]);
+			setAiThink((prev) => [...prev, think]);
+			setAiResponses((prev) => [...prev, final]);
 
 			// Send both messages to be stored in server
 			await axios.post('http://127.0.0.1:5000/append_message', {
@@ -107,21 +118,69 @@ export default function main() {
 		}
 	};
 
+	function parseAiResponse(response: string): {
+		think: string;
+		final: string;
+	} {
+		const thinkMatch = response.match(/<think>([\s\S]*?)<\/think>/);
+		const think = thinkMatch ? thinkMatch[1].trim() : '';
+
+		// Remove <think> block and everything before it, keep the rest
+		const final = response.replace(/<think>[\s\S]*?<\/think>/, '').trim();
+
+		return { think, final };
+	}
+
+	const toggleThinkVisibility = (index: number) => {
+		setExpandedIndexes((prev) => {
+			const newSet = new Set(prev);
+			if (newSet.has(index)) {
+				newSet.delete(index); // Collapse
+			} else {
+				newSet.add(index); // Expand
+			}
+			return newSet;
+		});
+	};
+
 	return (
 		<div className='flex flex-col h-screen items-center p-4 bg-zinc-800 relative'>
 			<h1 className='text-2xl font-bold text-gray-200'>LLM Assistant</h1>
-			<div className='flex-grow overflow-y-auto my-10 w-full px-20 space-y-4'>
+			<div className='flex-grow overflow-y-auto mt-10 mb-20 w-full px-20 space-y-4'>
 				{userMessages.map((message, index) => (
 					<div
 						key={`user-${index}`}
 						className='flex flex-col'>
-						<div className='px-4 py-2 rounded-3xl bg-neutral-700 text-white w-fit max-w-4/6 self-end'>
+						<div className='px-4 py-2 rounded-3xl bg-neutral-700 text-gray-200 w-fit max-w-4/6 self-end'>
 							{message}
 						</div>
 
 						{aiResponses[index] ? (
-							<div className='px-4 py-2 mt-2 text-gray-200 p-4 rounded-lg prose max-w-full'>
-								<ReactMarkdown>
+							<div className='px-4 py-2 mt-2 text-gray-200 p-4 rounded-lg prose max-w-full '>
+								{/* Think Toggle Box */}
+								<div
+									key={index}
+									className='bg-neutral-700 text-gray-200
+									px-4 py-2 cursor-pointer text-sm w-fit rounded-lg'
+									onClick={() =>
+										toggleThinkVisibility(index)
+									}>
+									{expandedIndexes.has(index)
+										? 'Hide Thinking'
+										: 'Show Thinking'}
+								</div>
+
+								{/* show thinking */}
+								{expandedIndexes.has(index) && (
+									<div className='my-4 text-gray-200 bg-neutral-700 rounded-lg'>
+										<ReactMarkdown className='whitespace-pre-wrap mx-3 text-sm my-5 py-5'>
+											{aiThink[index]}
+										</ReactMarkdown>
+									</div>
+								)}
+
+								{/* final ans */}
+								<ReactMarkdown className='whitespace-pre-wrap mt-2'>
 									{aiResponses[index]}
 								</ReactMarkdown>
 							</div>
