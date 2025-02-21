@@ -147,49 +147,53 @@ export default function Main() {
 	return (
 		<div className='flex flex-col h-screen items-center p-4 bg-zinc-800 relative'>
 			<h1 className='text-2xl font-bold text-gray-200'>LLM Assistant</h1>
-			<div className='flex-grow overflow-y-auto mt-10 mb-20 w-full px-20 space-y-4'>
+			<div className='flex-grow overflow-y-auto mt-10 mb-20 w-full px-11 space-y-4'>
 				{userMessages.map((message, index) => (
 					<div
 						key={`user-${index}`}
 						className='flex flex-col'>
-						<div className='px-4 py-2 rounded-3xl bg-neutral-700 text-gray-200 w-fit max-w-4/6 self-end'>
+						<div className='px-4 py-2 rounded-3xl bg-neutral-700 text-gray-200 self-end max-w-[66%] w-fit break-words mr-4'>
 							{message}
 						</div>
 
 						{aiResponses[index] ? (
 							<div className='px-4 py-2 mt-2 text-gray-200 p-4 rounded-lg prose max-w-full '>
 								{/* Think Toggle Box */}
-								<div
-									key={index}
-									className='bg-neutral-700 text-gray-400
-									px-4 py-2 cursor-pointer text-xs w-fit rounded-lg'
-									onClick={() =>
-										toggleThinkVisibility(index)
-									}>
-									{expandedIndexes.has(index)
-										? 'Hide Thinking'
-										: 'Show Thinking'}
-								</div>
+								{aiThink[index]?.trim() && (
+									<div>
+										{/* Toggle Button */}
+										<div
+											key={index}
+											className='bg-neutral-700 text-gray-400 px-4 py-2 cursor-pointer text-xs w-fit rounded-lg'
+											onClick={() =>
+												toggleThinkVisibility(index)
+											}>
+											{expandedIndexes.has(index)
+												? 'Hide Thinking'
+												: 'Show Thinking'}
+										</div>
 
-								{/* Show Thinking Process (Toggleable, Scrollable) */}
-								{expandedIndexes.has(index) && (
-									<div className='my-4 bg-neutral-700 text-gray-200 rounded-lg p-3'>
-										<div className='text-xs font-bold text-gray-400'>
-											Thinking Process:
-										</div>
-										<div className='max-h-40 overflow-y-auto bg-neutral-700 rounded-md p-2'>
-											<MarkdownComponent
-												content={aiThink[index]}
-											/>
-										</div>
+										{/* Show Thinking Process (Toggleable, Scrollable) */}
+										{expandedIndexes.has(index) && (
+											<div className='my-4 bg-neutral-700 text-gray-200 rounded-lg p-3'>
+												<div className='text-xs font-bold text-gray-400'>
+													Thinking Process:
+												</div>
+												<div className='max-h-40 overflow-y-auto  rounded-md p-2'>
+													<MarkdownComponent
+														content={aiThink[index]}
+													/>
+												</div>
+											</div>
+										)}
 									</div>
 								)}
 
 								{/* Final Answer (Always Visible) */}
 								<div className='mt p-4 rounded-lg text-gray-200'>
-									<div className='text-xs font-bold text-gray-400 mb-4'>
+									{/*<div className='text-xs font-bold text-gray-400 mb-4'>
 										Final Answer:
-									</div>
+									</div> */}
 									<MarkdownComponent
 										content={aiResponses[index]}
 									/>
